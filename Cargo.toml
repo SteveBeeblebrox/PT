@@ -1,0 +1,12 @@
+[package]
+name = "pt"
+version = "1.0.0"
+edition = "2018"
+authors = ["S. Beeblebrox"] # <you@example.com>
+license = "MIT"
+
+[dependencies]
+clap = "2.33.3"
+regex="1.1.9"
+panic-message = "0.3.0"
+backtrace = "0.3.64"
