@@ -6,6 +6,8 @@ use backtrace::Backtrace;
 use clap::{Arg, App};
 use regex::Regex;
 
+mod pcre2_regex;
+
 fn main() {
     let matches = App::new("PT")
         .version(clap::crate_version!())
@@ -97,4 +99,9 @@ fn main() {
     }
     
     println!("{}", PathBuf::from_iter(path.iter()).display());
+
+    /*unsafe {
+        let regexp = pcre2_regex::Regex::new("([a-z]+)", 0).ok().unwrap();
+        println!("{}", regexp.replace("Hello World!", r#"[\U$1]"#, 0, pcre2_regex::replace_options::SUBSTITUTE_EXTENDED | pcre2_regex::replace_options::SUBSTITUTE_GLOBAL));
+    }*/
 }

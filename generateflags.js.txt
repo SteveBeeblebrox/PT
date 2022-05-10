@@ -1,0 +1,7 @@
+console.clear()
+console.log(String.raw`
+    ...
+`.trim().split('\n').map(function(o){
+    const [prop,desc] = o.trim().split(/  +/,);
+    return `/// ${desc}\npub const ${prop.replace(/^PCRE2_/,'')}:u32 = pcre2_sys::${prop};`
+}).join('\n\n'));

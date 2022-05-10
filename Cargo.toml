@@ -8,5 +8,6 @@ license = "MIT"
 [dependencies]
 clap = "2.33.3"
 regex="1.1.9"
+pcre2-sys = "0.2"
 panic-message = "0.3.0"
 backtrace = "0.3.64"
