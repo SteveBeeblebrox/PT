@@ -4,7 +4,7 @@ use std::panic;
 
 use backtrace::Backtrace;
 use clap::{Arg, App};
-use regex::Regex;
+use std::ffi::OsStr;
 
 mod pcre2_regex;
 
@@ -21,7 +21,7 @@ fn main() {
 
         .arg(Arg::with_name("extension")
             .short("e")
-            .long("extension")
+            .long("ext")
             .value_name("EXTENSION")
             .help("Overwrites the extension of the input path (Applied after transforms and filename)")
             .takes_value(true)
@@ -29,16 +29,10 @@ fn main() {
 
         .arg(Arg::with_name("filename")
             .short("f")
-            .long("filename")
+            .long("fname")
             .value_name("FILENAME")
             .help("Overwrites the filename of the input path (Applied after transforms)")
             .takes_value(true)
-        )
-
-        .arg(Arg::with_name("boundless")
-            .short("b")
-            .long("boundless")
-            .help("Ignore word boundaries when applying transforms")
         )
 
         .arg(Arg::with_name("verbose")
@@ -76,14 +70,19 @@ fn main() {
         let mut path_str = path.into_os_string().into_string().unwrap();
 
         for transformation in transformations {
-            let mut parts = transformation.split("=>");
-            let from = parts.next().unwrap();
-            let to = parts.next().unwrap();
-            
-            if matches.is_present("boundless") {
-                path_str = path_str.replace(from, to);
-            } else {
-                path_str = Regex::new(&format!(r"\b{}\b", regex::escape(from))).unwrap().replace_all(&path_str, to).to_string();
+            if let Some((pattern,replacement)) = transformation.split_once("~~") {
+                path_str = unsafe {pcre2_regex::Regex::new(pattern, pcre2_regex::compile_options::UTF).expect("Invalid pattern").replace(&mut path_str, replacement, 0, pcre2_regex::replace_options::SUBSTITUTE_EXTENDED | pcre2_regex::replace_options::SUBSTITUTE_GLOBAL)};
+            }
+            else if let Some((text,replacement)) = transformation.split_once("~") {
+                let buf = PathBuf::from(path_str.clone());
+                let filename = buf.file_name().unwrap_or(OsStr::new(""));
+                path_str = unsafe {pcre2_regex::Regex::new(format!(r"(?<=^|\/){}(?=$|\/)",regex::escape(text)), pcre2_regex::compile_options::UTF).expect("Invalid pattern").replace(&mut path_str.clone(), replacement, 0, pcre2_regex::replace_options::SUBSTITUTE_EXTENDED | pcre2_regex::replace_options::SUBSTITUTE_GLOBAL)};
+                let mut buf = PathBuf::from(path_str.clone());
+                buf.set_file_name(filename);
+                path_str = buf.into_os_string().into_string().unwrap();
+            }
+            else {
+                panic!("Invalid transformation: {}", transformation);
             }
         }
 
@@ -99,9 +98,4 @@ fn main() {
     }
     
     println!("{}", PathBuf::from_iter(path.iter()).display());
-
-    /*unsafe {
-        let regexp = pcre2_regex::Regex::new("([a-z]+)", 0).ok().unwrap();
-        println!("{}", regexp.replace("Hello World!", r#"[\U$1]"#, 0, pcre2_regex::replace_options::SUBSTITUTE_EXTENDED | pcre2_regex::replace_options::SUBSTITUTE_GLOBAL));
-    }*/
 }

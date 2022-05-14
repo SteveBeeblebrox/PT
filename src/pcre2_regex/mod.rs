@@ -6,12 +6,14 @@ use pcre2_sys as pcre2;
 pub mod replace_options;
 pub mod compile_options;
 
+#[derive(Debug)]
 pub struct CompileError {
     pub message: String,
     pub code: i32,
     pub offset: usize
 }
 
+#[derive(Debug)]
 pub struct Regex {
     pattern: *mut pcre2::pcre2_code_8,
     pub options: u32
