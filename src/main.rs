@@ -6,6 +6,7 @@ use std::panic;
 use backtrace::Backtrace;
 use path_slash::PathExt;
 use clap::{Arg, App};
+use regex::Regex;
 
 mod pcre2_regex;
 
@@ -72,7 +73,7 @@ fn main() {
 
         for transformation in transformations {
             if let Some((pattern,replacement)) = transformation.split_once("~~") {
-                path_str = unsafe {pcre2_regex::Regex::new(pattern, pcre2_regex::compile_options::UTF).expect("Invalid pattern").replace(&mut path_str, replacement, 0, pcre2_regex::replace_options::SUBSTITUTE_EXTENDED | pcre2_regex::replace_options::SUBSTITUTE_GLOBAL)};
+                path_str = Regex::new("\0").unwrap().replace(&unsafe {pcre2_regex::Regex::new(pattern, pcre2_regex::compile_options::UTF).expect("Invalid pattern").replace(&mut path_str, replacement, 0, pcre2_regex::replace_options::SUBSTITUTE_EXTENDED | pcre2_regex::replace_options::SUBSTITUTE_GLOBAL)}, "").into_owned();
             }
             else if let Some((text,replacement)) = transformation.split_once("~") {
                 let buf = PathBuf::from(path_str.clone());
@@ -98,5 +99,6 @@ fn main() {
         path.set_extension(matches.value_of("extension").unwrap());
     }
     
+    println!("{}", PathBuf::from_iter(path.iter()).to_slash().unwrap().len());
     println!("{}", PathBuf::from_iter(path.iter()).to_slash().unwrap());
 }
