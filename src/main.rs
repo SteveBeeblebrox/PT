@@ -23,7 +23,7 @@ fn main() {
             .short("e")
             .long("ext")
             .value_name("EXTENSION")
-            .help("Overwrites the extension of the input path (Applied after transforms and filename)")
+            .help("Overwrites the extension of the input path (Applied after transforms and filename overwrite)")
             .takes_value(true)
         )
 
@@ -42,7 +42,7 @@ fn main() {
         )
 
         .arg(Arg::with_name("TRANSFORMS")
-            .help("The transformations to apply to the path in the format from=>to")
+            .help("The transformations to apply to the path in the form from~to or from~~to (The first form only matches entire directory names, the second applies globally as a PCRE2 RegEx; the to value may use extended PCRE2 substitutions in either form)")
             .index(2)
             .multiple(true)
         )
