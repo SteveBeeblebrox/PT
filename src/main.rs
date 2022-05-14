@@ -1,10 +1,11 @@
 use std::iter::FromIterator;
 use std::path::PathBuf;
+use std::ffi::OsStr;
 use std::panic;
 
 use backtrace::Backtrace;
+use path_slash::PathExt;
 use clap::{Arg, App};
-use std::ffi::OsStr;
 
 mod pcre2_regex;
 
@@ -97,5 +98,5 @@ fn main() {
         path.set_extension(matches.value_of("extension").unwrap());
     }
     
-    println!("{}", PathBuf::from_iter(path.iter()).display());
+    println!("{}", PathBuf::from_iter(path.iter()).to_slash().unwrap());
 }
