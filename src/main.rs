@@ -99,6 +99,5 @@ fn main() {
         path.set_extension(matches.value_of("extension").unwrap());
     }
     
-    println!("{}", PathBuf::from_iter(path.iter()).to_slash().unwrap().len());
     println!("{}", PathBuf::from_iter(path.iter()).to_slash().unwrap());
 }
